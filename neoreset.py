@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+##
+## neoreset - Neo's auto resetter for Minecraft speedrunning on Linux
+##
+## Author: Younis Bensalah (neoprene1337)
+##
 
 import os
 import sys
@@ -12,6 +17,7 @@ from boombox import BoomBox
 class Neoreset:
     class Voice:
         GREETINGS = [ 'hello', 'hi', 'pog', 'lfg', 'wb' ]
+        RESETS = [ 'reset', 'again', 'donged', 'godspeed', 'block' ]
 
         def __init__(self, path):
             self._path = path
