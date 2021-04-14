@@ -52,6 +52,7 @@ class Neoreset:
         self._voice = self._voice = self.Voice(path) if self._config['static']['sound'] else None
 
         self._hotkey = getattr(Key, self._config['static']['hotkey'])
+        self._hotkey2 = getattr(Key, self._config['static']['hotkey2'])
         self._version = self._config['static']['version']
         self._category = self._config['static']['category']
         self._delay = self._config['static']['delay']
@@ -65,15 +66,13 @@ class Neoreset:
 
     def start(self):
         def on_press(key):
-            if key != self._hotkey:
-                return
-            print('hotkey pressed!')
+            pass
 
         def on_release(key):
-            if key != self._hotkey:
-                return
-            print('hotkey released!')
-            self._on_reset()
+            if key == self._hotkey:
+                return self._on_reset()
+            if key == self._hotkey2:
+                return self._on_cycle()
 
         print("ready.")
 
@@ -125,6 +124,19 @@ class Neoreset:
         resetter.reset()
 
         self._write_back()
+
+    def _on_cycle(self):
+        if self._category == "rsg":
+            self._category = "ssg"
+        elif self._category == "ssg":
+            self._category = "fsg"
+        elif self._category == "fsg":
+            self._category = "rsg"
+        else:
+            raise ValueError("Unknown category!")
+
+        if self._voice:
+            getattr(self._voice, 'play_' + self._category)()
 
     def _write_back(self):
         self._config['volatile'][self._version][self._category]['counter']['global'] = self._global_count
