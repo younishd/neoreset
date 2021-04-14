@@ -6,6 +6,15 @@ _Neo's auto resetter for Minecraft speedrunning on Linux._
 
 WORK IN PROGRESS...
 
+- [x] 1.16
+- [x] RSG
+- [x] Linux
+- [ ] SSG
+- [ ] FSG
+- [ ] 1.14
+- [ ] macOS
+- [ ] Windows
+
 ## Features
 
 - RSG/SSG/FSG
