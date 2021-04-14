@@ -1,1 +1,3 @@
-.venv
+.venv/
+neoreset.json
+assets/*.mp3

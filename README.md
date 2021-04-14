@@ -1,11 +1,21 @@
 # neoreset
 
-_kick-ass auto reset tool for minecraft speedruns_
+_Neo's auto resetter for Minecraft speedrunning on Linux._
 
 ---
 
-## features
+## Features
 
-- rsg/ssg/fsg
-- 1.14 and 1.16
-- global and per session counter
+- RSG/SSG/FSG
+- 1.16 and 1.14
+- Global and per session counter in world name
+- Included filters
+    - filteredseed
+    - filteredvillage
+    - filteredshipwreck
+    - ruined-portal-loot
+    - fsg-power-village-looting-sword
+
+## Credits
+
+Thanks to [@AndyNovo](https://github.com/andynovo) for the FSG goodies.
