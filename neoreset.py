@@ -9,6 +9,7 @@ import os
 import sys
 import json
 import random
+import subprocess
 from time import time, sleep
 from shutil import copyfile
 from pynput.keyboard import Key, Controller, Listener
@@ -110,9 +111,9 @@ class Neoreset:
             raise ValueError("Unknown version!")
 
         if self._category == "ssg":
-            resetter = SetSeedDecorator(resetter, seed=ssg_seed)
+            resetter = SetSeedDecorator(resetter, seed=self._ssg_seed)
         elif self._category == "fsg":
-            resetter = FilteredSeedDecorator(SetSeedDecorator(resetter), filter=fsg_filter)
+            resetter = FilteredSeedDecorator(SetSeedDecorator(resetter), filter=self._fsg_filter)
         elif self._category == "rsg":
             pass
         else:
@@ -232,12 +233,20 @@ class FilteredSeedDecorator(ResetterDecorator):
 
     def __init__(self, resetter: Resetter, filter=Filter.SEED):
         super().__init__(resetter)
+        assert filter in [
+            self.Filter.SEED,
+            self.Filter.VILLAGE,
+            self.Filter.SHIPWRECK,
+            self.Filter.LOOTING,
+            self.Filter.PORTAL ]
         self._filter = filter
         self._category = "fsg"
 
     def reset(self):
-        # TODO fsg
-        raise NotImplementedError
+        # TODO
+        subprocess.run(["ls", "-l"])
+        self._seed = seed
+        self._resetter.reset()
 
 def main():
     path = os.path.dirname(os.path.abspath(__file__))

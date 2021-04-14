@@ -9,7 +9,6 @@ WORK IN PROGRESS...
 ## Features
 
 - RSG/SSG/FSG
-- 1.16 and 1.14
 - Global and per session counter in world name
 - Included filters
     - filteredseed
