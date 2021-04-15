@@ -30,6 +30,9 @@ class Neoreset:
         def play_random_greeting(self):
             self._play(random.choice(self.GREETINGS))
 
+        def play_random_reset(self):
+            self._play(random.choice(self.RESETS))
+
         def play_rsg(self):
             self._play('rsg')
 
@@ -38,9 +41,6 @@ class Neoreset:
 
         def play_fsg(self):
             self._play('fsg')
-
-        def play_reset(self):
-            self._play('reset')
 
     def __init__(self, root_path, minecraft_path):
         file = os.path.join(minecraft_path, 'neoreset.json')
@@ -128,7 +128,7 @@ class Neoreset:
             raise ValueError("Unknown category!")
 
         if self._voice:
-            self._voice.play_reset()
+            self._voice.play_random_reset()
 
         data = resetter.reset()
 
