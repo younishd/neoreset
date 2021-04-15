@@ -10,6 +10,7 @@ import sys
 import json
 import random
 import subprocess
+import re
 from time import time, sleep
 from shutil import copyfile
 from pynput.keyboard import Key, Controller, Listener
@@ -49,6 +50,7 @@ class Neoreset:
         with open(file) as f:
             self._config = json.load(f)
         self._file = file
+        self._root_path = root_path
 
         self._voice = self._voice = self.Voice(os.path.join(root_path, 'assets')) if self._config['static']['sound'] else None
 
@@ -119,7 +121,7 @@ class Neoreset:
         if self._category == "ssg":
             resetter = SetSeedDecorator(resetter, seed=self._ssg_seed)
         elif self._category == "fsg":
-            resetter = FilteredSeedDecorator(SetSeedDecorator(resetter), filter=self._fsg_filter)
+            resetter = FilteredSeedDecorator(SetSeedDecorator(resetter), filter=self._fsg_filter, path=self._root_path)
         elif self._category == "rsg":
             pass
         else:
@@ -128,9 +130,23 @@ class Neoreset:
         if self._voice:
             self._voice.play_reset()
 
-        resetter.reset()
+        data = resetter.reset()
 
-        self._write_back()
+        # write back volatile meta data
+        self._config['volatile'][self._version][self._category]['counter']['global'] = self._global_count
+        self._config['volatile'][self._version][self._category]['counter']['session'] = self._session_count
+        self._config['volatile'][self._version][self._category]['last_run']['timestamp'] = self._last_timestamp
+
+        # write back seed (ssg + fsg)
+        if self._category in ['ssg', 'fsg']:
+            self._config['volatile'][self._version][self._category]['last_run']['seed'] = data['seed']
+
+        # write back token (fsg)
+        if self._category == 'fsg':
+            self._config['volatile'][self._version][self._category]['last_run']['token'] = data['token']
+
+        with open(self._file, 'w') as f:
+            json.dump(self._config, f, indent=4)
 
     def _on_cycle(self):
         if self._category == "rsg":
@@ -142,15 +158,12 @@ class Neoreset:
         else:
             raise ValueError("Unknown category!")
 
+        self._global_count = self._config['volatile'][self._version][self._category]['counter']['global']
+        self._session_count = self._config['volatile'][self._version][self._category]['counter']['session']
+        self._last_timestamp = self._config['volatile'][self._version][self._category]['last_run']['timestamp']
+
         if self._voice:
             getattr(self._voice, 'play_' + self._category)()
-
-    def _write_back(self):
-        self._config['volatile'][self._version][self._category]['counter']['global'] = self._global_count
-        self._config['volatile'][self._version][self._category]['counter']['session'] = self._session_count
-        self._config['volatile'][self._version][self._category]['last_run']['timestamp'] = self._last_timestamp
-        with open(self._file, 'w') as f:
-            json.dump(self._config, f, indent=4)
 
 class Resetter:
     def __init__(self, delay=0.07, world_name=None):
@@ -177,6 +190,7 @@ class SixteenResetter(Resetter):
         self._enter_name()
         self._set_difficulty()
         self._create()
+        return None
 
     def _new_world(self):
         self._tap([ Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.enter ])
@@ -212,22 +226,24 @@ class ResetterDecorator(Resetter):
         self._resetter = resetter
 
     def reset(self):
-        self._resetter.reset()
+        return self._resetter.reset()
 
 class SetSeedDecorator(ResetterDecorator):
     def __init__(self, resetter: Resetter, seed='2483313382402348964'):
         super().__init__(resetter)
         self._seed = seed
-        self._category = "ssg"
+        self._resetter._category = "ssg"
 
     def reset(self):
         self._resetter._new_world()
         self._resetter._enter_name()
         self._resetter._set_difficulty()
 
-        self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
-        self._keyboard.type(self._seed)
-        self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
+        self._resetter._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
+        self._resetter._keyboard.type(self._seed)
+        self._resetter._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
+
+        return { 'seed': self._seed }
 
 class FilteredSeedDecorator(ResetterDecorator):
     class Filter:
@@ -237,7 +253,7 @@ class FilteredSeedDecorator(ResetterDecorator):
         LOOTING     = 'fsg-power-village-looting-sword'
         PORTAL      = 'ruined-portal-loot'
 
-    def __init__(self, resetter: Resetter, filter=Filter.SEED):
+    def __init__(self, resetter: Resetter, filter=Filter.SEED, path=""):
         super().__init__(resetter)
         assert filter in [
             self.Filter.SEED,
@@ -246,13 +262,28 @@ class FilteredSeedDecorator(ResetterDecorator):
             self.Filter.LOOTING,
             self.Filter.PORTAL ]
         self._filter = filter
-        self._category = "fsg"
+        self._path = path
+        self._resetter._category = "fsg"
 
     def reset(self):
-        # TODO
-        subprocess.run(["ls", "-l"])
-        self._seed = seed
+        env = os.environ.copy()
+        env["LD_LIBRARY_PATH"] = os.path.join(self._path, 'lib')
+        cmd = os.path.join(self._path, 'bin', self._filter)
+        result = subprocess.run([ cmd ], env=env, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        seed = re.findall(r'Seed: (.+)', result)
+        token = re.findall(r'Verification Token:\n(.+)', result)
+        if (len(seed) == 0):
+            raise RuntimeError("No seed found in command output!")
+        if (len(token) == 0):
+            raise RuntimeError("No token found in command output!")
+        seed = seed[0]
+        token = token[0]
+        print("seed:\t{}".format(seed))
+        print("token:\t{}".format(token))
+        print()
+        self._resetter._seed = seed
         self._resetter.reset()
+        return { 'seed': seed, 'token': token, 'filter': self._filter }
 
 def main():
     root_path = os.path.dirname(os.path.abspath(__file__))

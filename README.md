@@ -9,8 +9,8 @@ WORK IN PROGRESS...
 - [x] 1.16
 - [x] RSG
 - [x] Linux
-- [ ] SSG
-- [ ] FSG
+- [x] SSG
+- [x] FSG
 - [ ] 1.14
 - [ ] macOS
 - [ ] Windows
