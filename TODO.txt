@@ -1,3 +1,2 @@
 - implement 1.14
-- save to .minecraft
 - pyinstaller
