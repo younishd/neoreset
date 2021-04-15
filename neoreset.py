@@ -24,7 +24,7 @@ class Neoreset:
             self._path = path
 
         def _play(self, line):
-            BoomBox(os.path.join(self._path, 'assets', line + '.ogg')).play()
+            BoomBox(os.path.join(self._path, line + '.ogg')).play()
 
         def play_random_greeting(self):
             self._play(random.choice(self.GREETINGS))
@@ -41,16 +41,16 @@ class Neoreset:
         def play_reset(self):
             self._play('reset')
 
-    def __init__(self, path):
-        file = os.path.join(path, 'neoreset.json')
+    def __init__(self, root_path, minecraft_path):
+        file = os.path.join(minecraft_path, 'neoreset.json')
         if not (os.path.exists(file) and os.path.isfile(file)) or os.stat(file).st_size == 0:
-            template = os.path.join(path, 'neoreset.empty.json')
+            template = os.path.join(root_path, 'neoreset.json')
             copyfile(template, file)
         with open(file) as f:
             self._config = json.load(f)
         self._file = file
 
-        self._voice = self._voice = self.Voice(path) if self._config['static']['sound'] else None
+        self._voice = self._voice = self.Voice(os.path.join(root_path, 'assets')) if self._config['static']['sound'] else None
 
         self._hotkey = getattr(Key, self._config['static']['hotkey'])
         self._hotkey2 = getattr(Key, self._config['static']['hotkey2'])
@@ -75,7 +75,7 @@ class Neoreset:
             if key == self._hotkey2:
                 return self._on_cycle()
 
-        print("ready.")
+        self._print_hotkeys()
 
         if self._voice:
             self._voice.play_random_greeting()
@@ -84,6 +84,12 @@ class Neoreset:
                 on_press=on_press,
                 on_release=on_release) as listener:
             listener.join()
+
+    def _print_hotkeys(self):
+        print("hotkeys:")
+        print("\t<{}> to reset".format(str(self._hotkey)))
+        print("\t<{}> to switch category".format(str(self._hotkey2)))
+        print()
 
     def _on_reset(self):
         current_timestamp = int(time())
@@ -249,8 +255,9 @@ class FilteredSeedDecorator(ResetterDecorator):
         self._resetter.reset()
 
 def main():
-    path = os.path.dirname(os.path.abspath(__file__))
-    Neoreset(path).start()
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    minecraft_path = os.path.join(os.path.expanduser('~'), '.minecraft')
+    Neoreset(root_path, minecraft_path).start()
 
 if __name__ == '__main__':
     main()
