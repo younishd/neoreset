@@ -28,24 +28,48 @@ WORK IN PROGRESS...
 
 ## Usage
 
-Activate venv:
+Activate python virtual environment.
 
 ```
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install requirements:
+Install dependencies.
 
 ```
 pip install -r requirements.txt
 ```
 
-Run neoreset:
+Run neoreset…
 
 ```
 ./neoreset.py
 ```
+
+Press your hotkey and reset away!
+
+## Config
+
+Check out the file called `neoreset.json` in your `.minecraft` folder.
+
+- `hotkey` - reset hotkey
+- `hotkey2` - switch category hotkey
+- `delay` - delay in seconds between simulated keyboard inputs
+- `session_thresh` - threshold when to wrap a session (in seconds)
+- `sound` - voice on/off
+- `world_name` - world name format string with placeholders
+    - `{c}` - category
+    - `{v}` - version
+    - `{s}` - per session counter
+    - `{g}` - global counter
+- `ssg.seed` - seed to be used for SSG category
+- `fsg.filter` - filter to be used for FSG category
+    - `filteredseed`
+    - `filteredvillage`
+    - `filteredshipwreck`
+    - `ruined-portal-loot`
+    - `fsg-power-village-looting-sword`
 
 ## Credits
 
