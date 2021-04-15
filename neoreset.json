@@ -1,6 +1,7 @@
 {
     "static": {
         "hotkey": "f7",
+        "hotkey2": "f8",
         "version": "1.16",
         "category": "rsg",
         "delay": 0.07,
