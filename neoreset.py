@@ -23,6 +23,7 @@ class Neoreset:
 
         def __init__(self, path):
             self._path = path
+            self._last_reset = random.choice(self.RESETS)
 
         def _play(self, line):
             BoomBox(os.path.join(self._path, line + '.ogg')).play()
@@ -31,7 +32,8 @@ class Neoreset:
             self._play(random.choice(self.GREETINGS))
 
         def play_random_reset(self):
-            self._play(random.choice(self.RESETS))
+            self._last_reset = random.choice([ x for x in self.RESETS if x != self._last_reset ])
+            self._play(self._last_reset)
 
         def play_rsg(self):
             self._play('rsg')
