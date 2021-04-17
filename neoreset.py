@@ -249,7 +249,7 @@ class SetSeedDecorator(ResetterDecorator):
 
 class FilteredSeedDecorator(ResetterDecorator):
     class Filter:
-        SEED        = 'filteredseed',
+        SEED        = 'filteredseed'
         VILLAGE     = 'filteredvillage'
         SHIPWRECK   = 'filteredshipwreck'
         LOOTING     = 'fsg-power-village-looting-sword'
