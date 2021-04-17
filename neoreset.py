@@ -7,6 +7,7 @@
 
 import os
 import sys
+import signal
 import json
 import random
 import subprocess
@@ -288,6 +289,11 @@ class FilteredSeedDecorator(ResetterDecorator):
         return { 'seed': seed, 'token': token, 'filter': self._filter }
 
 def main():
+    def sigint_handler(sig, frame):
+        print('Bye!')
+        sys.exit(0)
+    signal.signal(signal.SIGINT, sigint_handler)
+
     root_path = os.path.dirname(os.path.abspath(__file__))
     minecraft_path = os.path.join(os.path.expanduser('~'), '.minecraft')
     Neoreset(root_path, minecraft_path).start()
