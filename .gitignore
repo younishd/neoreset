@@ -1,2 +1,6 @@
 .venv/
 assets/*.mp3
+/dist/
+/build/
+neoreset.spec
+/__pycache__/
