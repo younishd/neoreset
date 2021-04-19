@@ -8,13 +8,16 @@
         "session_thresh": 3600,
         "sound": true,
         "world_name": "{c} ({v}) {s}/{g}",
-        "rsg": {},
-        "ssg": {
-            "seed": "2483313382402348964"
+        "1.16": {
+            "rsg": {},
+            "ssg": {
+                "seed": "2483313382402348964"
+            },
+            "fsg": {
+                "filter": "filteredseed"
+            }
         },
-        "fsg": {
-            "filter": "filteredseed"
-        }
+        "1.14": {}
     },
     "volatile": {
         "1.16": {
@@ -49,37 +52,6 @@
                 }
             }
         },
-        "1.14": {
-            "rsg": {
-                "counter": {
-                    "global": 0,
-                    "session": 0
-                },
-                "last_run": {
-                    "timestamp": 0
-                }
-            },
-            "ssg": {
-                "counter": {
-                    "global": 0,
-                    "session": 0
-                },
-                "last_run": {
-                    "timestamp": 0,
-                    "seed": ""
-                }
-            },
-            "fsg": {
-                "counter": {
-                    "global": 0,
-                    "session": 0
-                },
-                "last_run": {
-                    "timestamp": 0,
-                    "seed": "",
-                    "token": ""
-                }
-            }
-        }
+        "1.14": {}
     }
 }

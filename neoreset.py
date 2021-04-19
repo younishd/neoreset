@@ -64,8 +64,8 @@ class Neoreset:
         self._delay = self._config['static']['delay']
         self._session_thresh = self._config['static']['session_thresh']
         self._world_name = self._config['static']['world_name']
-        self._ssg_seed = self._config['static']['ssg']['seed']
-        self._fsg_filter = self._config['static']['fsg']['filter']
+        self._ssg_seed = self._config['static'][self._version]['ssg']['seed']
+        self._fsg_filter = self._config['static'][self._version]['fsg']['filter']
         self._global_count = self._config['volatile'][self._version][self._category]['counter']['global']
         self._session_count = self._config['volatile'][self._version][self._category]['counter']['session']
         self._last_timestamp = self._config['volatile'][self._version][self._category]['last_run']['timestamp']
@@ -296,6 +296,10 @@ def main():
 
     root_path = os.path.dirname(os.path.abspath(__file__))
     minecraft_path = os.path.join(os.path.expanduser('~'), '.minecraft')
+    version_file = os.path.join(root_path, 'VERSION')
+    with open(version_file) as f:
+        version = f.read()
+    print("neoreset {}".format(version.strip()))
     Neoreset(root_path, minecraft_path).start()
 
 if __name__ == '__main__':
