@@ -62,13 +62,52 @@ Check out the file called `neoreset.json` in your `.minecraft` folder.
 
 ## Dev
 
+Clone the repository and set up a virtual environment as follows.
+
 ```
 git clone https://github.com/younishd/neoreset.git
 cd neoreset
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Run the script like this:
+
+```
 ./neoreset.py
+```
+
+### PyInstaller
+
+We're using [PyInstaller](https://pyinstaller.readthedocs.io) to bundle everything into a single binary.
+
+Install the `pyinstaller` package as follows.
+
+```
+pip install pyinstaller
+```
+
+Then run the following command to build the binary:
+
+```
+pyinstaller neoreset.py \
+        --onefile \
+        --add-data assets:assets \
+        --add-data VERSION:. \
+        --add-data README.md:. \
+        --add-data LICENSE:. \
+        --add-data neoreset.json:. \
+        --add-binary bin:bin \
+        --add-binary lib:lib \
+        --hidden-import=pynput.keyboard._xorg \
+        --hidden-import=pynput.mouse._xorg
+```
+
+Run the new binary (outside the venv) like this
+
+```
+dist/neoreset
 ```
 
 ## Bugs
