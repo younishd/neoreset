@@ -8,7 +8,7 @@ _Neo's auto resetter for Minecraft speedrunning on Linux._
 
 Download the latest release from here:
 
-- **[neoreset 1.0.0 (Linux)](https://github.com/younishd/neoreset/releases)**
+- **[neoreset_1.0.0-linux-x86_64](https://github.com/younishd/neoreset/releases/download/v1.0.0/neoreset_1.0.0-linux-x86_64)**
 
 Run the executable (e.g. from a terminal) and press…
 - **F7** to reset (from title screen)
