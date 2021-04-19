@@ -5,3 +5,4 @@ assets/*.mp3
 neoreset.spec
 /__pycache__/
 *.log
+/.vagrant/
