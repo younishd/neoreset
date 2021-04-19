@@ -4,3 +4,4 @@ assets/*.mp3
 /build/
 neoreset.spec
 /__pycache__/
+*.log
