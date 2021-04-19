@@ -4,6 +4,8 @@ _Neo's auto resetter for Minecraft speedrunning on Linux._
 
 ---
 
+![](screen.png)
+
 ## TL;DR
 
 Download the latest release from here:
