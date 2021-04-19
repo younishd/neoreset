@@ -1,2 +1,2 @@
 - implement 1.14
-- pyinstaller
+- port to Windows/macOS
