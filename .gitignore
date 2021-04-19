@@ -6,3 +6,4 @@ neoreset.spec
 /__pycache__/
 *.log
 /.vagrant/
+/filteredseed/
