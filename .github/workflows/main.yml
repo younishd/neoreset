@@ -27,6 +27,9 @@ jobs:
       - name: Build
         run: |
           echo "[+] compiling fsg..."
+          git clone https://github.com/younishd/filteredseed
+          mkdir -vp bin lib
+          cp -vr filteredseed/filteredseed/libs/* lib/
           for x in filteredseed filteredshipwreck filteredvillage fsg-power-village-looting-sword ruined-portal-loot; do
             (
               cd filteredseed/"$x"
@@ -34,7 +37,7 @@ jobs:
                 -I./include -L./libs -lgcrypt -lgpg-error -L. -lcubiomes -lm -lpthread -Wl,-rpath=./libs/ -lminecraft_nether_gen_rs \
                 -Wall -Wpedantic \
                 -o "$x"
-              cp "$x" "$GITHUB_WORKSPACE"/bin/
+              cp -v "$x" "$GITHUB_WORKSPACE"/bin/
             )
           done
           echo "[+] building pyinstaller binary..."
@@ -42,7 +45,7 @@ jobs:
             --onefile \
             --noconfirm \
             --log-level INFO \
-            --name "neoreset_$(echo $GITHUB_REF | cut -d/ -f3 | )-linux-x86_64" \
+            --name "neoreset_$(echo $GITHUB_REF | cut -d/ -f3 )-linux-x86_64" \
             --add-data assets:assets \
             --add-data VERSION:. \
             --add-data README.md:. \
