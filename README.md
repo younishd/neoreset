@@ -1,6 +1,6 @@
 # neoreset
 
-![](https://github.com/younishd/neoreset/actions/workflows/main.yml/badge.svg)
+![](https://github.com/younishd/neoreset/actions/workflows/main.yml/badge.svg?branch=v1.1.1)
 
 _Neo's auto resetter for Minecraft speedrunning on Linux._
 
@@ -10,9 +10,7 @@ _Neo's auto resetter for Minecraft speedrunning on Linux._
 
 ## TL;DR
 
-Download the latest release from here:
-
-- **[neoreset_1.0.0-linux-x86_64](https://github.com/younishd/neoreset/releases/download/v1.0.0/neoreset_1.0.0-linux-x86_64)**
+Download the latest release from [**here**](https://github.com/younishd/neoreset/releases/latest).
 
 Run the executable (e.g. from a terminal) and press…
 - **F7** to reset (from title screen)
