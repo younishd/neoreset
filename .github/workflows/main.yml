@@ -2,9 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
-    #tags:
-    #  - 'v*.*.*'
+    tags:
+     - 'v*.*.*'
 
 jobs:
   build:
@@ -46,7 +45,7 @@ jobs:
             --onefile \
             --noconfirm \
             --log-level INFO \
-            --name "neoreset_$(echo $GITHUB_REF | cut -d/ -f3 )-linux-x86_64" \
+            --name "neoreset_$(echo $GITHUB_REF | cut -d/ -f3 | cut -c2- )-linux-x86_64" \
             --add-data assets:assets \
             --add-data VERSION:. \
             --add-data README.md:. \
