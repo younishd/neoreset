@@ -295,7 +295,10 @@ def main():
     signal.signal(signal.SIGINT, sigint_handler)
 
     root_path = os.path.dirname(os.path.abspath(__file__))
-    minecraft_path = os.path.join(os.path.expanduser('~'), '.minecraft')
+    if os.path.basename(os.getcwd()) == ".minecraft":
+        minecraft_path = os.getcwd()
+    else:
+        minecraft_path = os.path.join(os.path.expanduser('~'), '.minecraft')
     version_file = os.path.join(root_path, 'VERSION')
     with open(version_file) as f:
         version = f.read()
