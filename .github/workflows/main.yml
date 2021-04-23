@@ -41,6 +41,7 @@ jobs:
             )
           done
           echo "[+] building pyinstaller binary..."
+          source .venv/bin/activate
           pyinstaller neoreset.py \
             --onefile \
             --noconfirm \
