@@ -29,6 +29,28 @@ Run the executable (e.g. from a terminal) and press…
     - ruined-portal-loot
     - fsg-power-village-looting-sword
 
+## Options
+
+```
+usage: neoreset [-h] [-v] [-c CONFIG_PATH]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -c CONFIG_PATH, --config CONFIG_PATH
+                        custom path to neoreset.json config file
+```
+
+### Examples
+
+Pass a custom path to where the `neoreset.json` config file shall be:
+
+```
+neoreset --config /path/to/somewhere
+```
+
+This defaults to your `.minecraft` folder.
+
 ## Settings
 
 Check out the file called `neoreset.json` in your `.minecraft` folder.

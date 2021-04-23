@@ -12,6 +12,7 @@ import json
 import random
 import subprocess
 import re
+import argparse
 from time import time, sleep
 from shutil import copyfile
 from pynput.keyboard import Key, Controller, Listener
@@ -46,6 +47,8 @@ class Neoreset:
             self._play('fsg')
 
     def __init__(self, root_path, minecraft_path):
+        if not (os.path.exists(minecraft_path) and os.path.isdir(minecraft_path)):
+            raise ValueError("Invalid config path! ({})".format(minecraft_path))
         file = os.path.join(minecraft_path, 'neoreset.json')
         if not (os.path.exists(file) and os.path.isfile(file)) or os.stat(file).st_size == 0:
             template = os.path.join(root_path, 'neoreset.json')
@@ -299,7 +302,20 @@ def main():
     version_file = os.path.join(root_path, 'VERSION')
     with open(version_file) as f:
         version = f.read()
+    parser = argparse.ArgumentParser(
+            description="Neo's auto resetter for Minecraft speedrunning on Linux.",
+            prog="neoreset")
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {}'.format(version.strip()))
+    parser.add_argument('-c', '--config',
+            dest='config_path',
+            action='store',
+            default=minecraft_path,
+            help='custom path to neoreset.json config file')
+    args = parser.parse_args()
+    print(args.config_path)
+    minecraft_path = args.config_path
     print("neoreset {}".format(version.strip()))
+
     Neoreset(root_path, minecraft_path).start()
 
 if __name__ == '__main__':
