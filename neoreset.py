@@ -312,7 +312,6 @@ def main():
             default=minecraft_path,
             help='custom path to neoreset.json config file')
     args = parser.parse_args()
-    print(args.config_path)
     minecraft_path = args.config_path
     print("neoreset {}".format(version.strip()))
 
