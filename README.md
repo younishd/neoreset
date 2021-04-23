@@ -1,5 +1,7 @@
 # neoreset
 
+![](https://github.com/younishd/neoreset/actions/workflows/main.yml/badge.svg)
+
 _Neo's auto resetter for Minecraft speedrunning on Linux._
 
 ---
