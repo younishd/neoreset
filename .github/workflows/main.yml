@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    #tags:
+    #  - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        run: |
+          echo "[+] installing dependencies..."
+          apt-get update
+          apt-get install -y python3-venv python3-dev build-essential
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install pyinstaller
+          [ -f requirements.txt ] && pip install -r requirements.txt
+      - name: Build
+        run: |
+          echo "[+] compiling fsg..."
+          for x in filteredseed filteredshipwreck filteredvillage fsg-power-village-looting-sword ruined-portal-loot; do
+            (
+              cd filteredseed/"$x"
+              gcc csprng.c \
+                -I./include -L./libs -lgcrypt -lgpg-error -L. -lcubiomes -lm -lpthread -Wl,-rpath=./libs/ -lminecraft_nether_gen_rs \
+                -Wall -Wpedantic \
+                -o "$x"
+              cp "$x" "$GITHUB_WORKSPACE"/bin/
+            )
+          done
+          echo "[+] building pyinstaller binary..."
+          pyinstaller neoreset.py \
+            --onefile \
+            --noconfirm \
+            --log-level INFO \
+            --name "neoreset_$(echo $GITHUB_REF | cut -d/ -f3 | )-linux-x86_64" \
+            --add-data assets:assets \
+            --add-data VERSION:. \
+            --add-data README.md:. \
+            --add-data LICENSE:. \
+            --add-data neoreset.json:. \
+            --add-binary bin:bin \
+            --add-binary lib:lib \
+            --hidden-import=pynput.keyboard._xorg \
+            --hidden-import=pynput.mouse._xorg
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/neoreset_*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
