@@ -9,7 +9,6 @@
         "sound": true,
         "world_name": "{c} ({v}) {s}/{g}",
         "1.16": {
-            "rsg": {},
             "ssg": {
                 "seed": "2483313382402348964"
             },
@@ -17,7 +16,11 @@
                 "filter": "filteredseed"
             }
         },
-        "1.14": {}
+        "1.14": {
+            "ssg": {
+                "seed": "51323159635216045"
+            }
+        }
     },
     "volatile": {
         "1.16": {
@@ -52,6 +55,26 @@
                 }
             }
         },
-        "1.14": {}
+        "1.14": {
+            "rsg": {
+                "counter": {
+                    "global": 0,
+                    "session": 0
+                },
+                "last_run": {
+                    "timestamp": 0
+                }
+            },
+            "ssg": {
+                "counter": {
+                    "global": 0,
+                    "session": 0
+                },
+                "last_run": {
+                    "timestamp": 0,
+                    "seed": ""
+                }
+            }
+        }
     }
 }

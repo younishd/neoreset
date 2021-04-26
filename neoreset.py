@@ -64,11 +64,14 @@ class Neoreset:
         self._hotkey2 = getattr(Key, self._config['static']['hotkey2'])
         self._version = self._config['static']['version']
         self._category = self._config['static']['category']
+        if self._category == 'fsg' and self._version == '1.14':
+            raise NotImplementedError("FSG for 1.14 has not been implemented yet.")
+
         self._delay = self._config['static']['delay']
         self._session_thresh = self._config['static']['session_thresh']
         self._world_name = self._config['static']['world_name']
         self._ssg_seed = self._config['static'][self._version]['ssg']['seed']
-        self._fsg_filter = self._config['static'][self._version]['fsg']['filter']
+        self._fsg_filter = self._config['static']['1.16']['fsg']['filter']
         self._global_count = self._config['volatile'][self._version][self._category]['counter']['global']
         self._session_count = self._config['volatile'][self._version][self._category]['counter']['session']
         self._last_timestamp = self._config['volatile'][self._version][self._category]['last_run']['timestamp']
@@ -113,6 +116,8 @@ class Neoreset:
                 s=self._session_count,
                 g=self._global_count)
 
+        print(world_name)
+
         if self._version == "1.14":
             resetter = FourteenResetter(
                     delay=self._delay,
@@ -125,9 +130,12 @@ class Neoreset:
             raise ValueError("Unknown version!")
 
         if self._category == "ssg":
-            resetter = SetSeedDecorator(resetter, seed=self._ssg_seed)
+            resetter.set_seed(self._ssg_seed)
         elif self._category == "fsg":
-            resetter = FilteredSeedDecorator(SetSeedDecorator(resetter), filter=self._fsg_filter, path=self._root_path)
+            resetter = FilteredSeedDecorator(
+                    resetter,
+                    filter=self._fsg_filter,
+                    path=self._root_path)
         elif self._category == "rsg":
             pass
         else:
@@ -158,7 +166,12 @@ class Neoreset:
         if self._category == "rsg":
             self._category = "ssg"
         elif self._category == "ssg":
-            self._category = "fsg"
+            if self._version == '1.16':
+                self._category = "fsg"
+            elif self._version == '1.14':
+                self._category = "rsg"
+            else:
+                raise ValueError("Unknown version!")
         elif self._category == "fsg":
             self._category = "rsg"
         else:
@@ -172,10 +185,18 @@ class Neoreset:
             getattr(self._voice, 'play_' + self._category)()
 
 class Resetter:
-    def __init__(self, delay=0.07, world_name=None):
+    def __init__(self, delay=0.07, world_name=None, seed=None):
         self._keyboard = Controller()
         self._delay = delay
         self._world_name = world_name
+        self.set_seed(seed)
+
+    def set_seed(self, seed):
+        self._seed = seed
+        if seed is None:
+            self._category = "rsg"
+        else:
+            self._category = "ssg"
 
     def reset(self):
         raise NotImplementedError
@@ -189,19 +210,35 @@ class SixteenResetter(Resetter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._version = "1.16"
-        self._category = "rsg"
 
     def reset(self):
-        self._new_world()
-        self._enter_name()
-        self._set_difficulty()
-        self._create()
+        self._tap([ Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.enter ])
+        self._keyboard.press(Key.ctrl_l)
+        sleep(self._delay)
+        self._tap([ Key.backspace, Key.backspace ])
+        self._keyboard.release(Key.ctrl_l)
+        sleep(self._delay)
+        self._keyboard.type(self._world_name)
+        sleep(self._delay)
+        self._tap([ Key.tab, Key.tab, Key.enter, Key.enter, Key.enter ])
+
+        # set seed
+        if self._seed is not None:
+            self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
+            self._keyboard.type(self._seed)
+            self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
+            return { 'seed': self._seed }
+
+        self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
         return None
 
-    def _new_world(self):
-        self._tap([ Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.enter ])
+class FourteenResetter(Resetter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._version = "1.14"
 
-    def _enter_name(self):
+    def reset(self):
+        self._tap([ Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab ])
         self._keyboard.press(Key.ctrl_l)
         sleep(self._delay)
         self._tap([ Key.backspace, Key.backspace ])
@@ -210,22 +247,15 @@ class SixteenResetter(Resetter):
         self._keyboard.type(self._world_name)
         sleep(self._delay)
 
-    def _set_difficulty(self):
-        # TODO difficulty option
-        self._tap([ Key.tab, Key.tab, Key.enter, Key.enter, Key.enter ])
+        # set seed
+        if self._seed is not None:
+            self._tap([ Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
+            self._keyboard.type(self._seed)
+            self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
+            return { 'seed': self._seed }
 
-    def _create(self):
-        self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
-
-class FourteenResetter(Resetter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._version = "1.14"
-        self._category = "rsg"
-
-    def reset(self):
-        # TODO 1.14
-        raise NotImplementedError
+        self._tap([ Key.tab, Key.tab, Key.tab, Key.enter ])
+        return None
 
 class ResetterDecorator(Resetter):
     def __init__(self, resetter: Resetter):
@@ -233,23 +263,6 @@ class ResetterDecorator(Resetter):
 
     def reset(self):
         return self._resetter.reset()
-
-class SetSeedDecorator(ResetterDecorator):
-    def __init__(self, resetter: Resetter, seed='2483313382402348964'):
-        super().__init__(resetter)
-        self._seed = seed
-        self._resetter._category = "ssg"
-
-    def reset(self):
-        self._resetter._new_world()
-        self._resetter._enter_name()
-        self._resetter._set_difficulty()
-
-        self._resetter._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
-        self._resetter._keyboard.type(self._seed)
-        self._resetter._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
-
-        return { 'seed': self._seed }
 
 class FilteredSeedDecorator(ResetterDecorator):
     class Filter:
@@ -272,6 +285,7 @@ class FilteredSeedDecorator(ResetterDecorator):
         self._resetter._category = "fsg"
 
     def reset(self):
+        # execute fsg binary
         env = os.environ.copy()
         env["LD_LIBRARY_PATH"] = os.path.join(self._path, 'lib')
         cmd = os.path.join(self._path, 'bin', self._filter)
@@ -287,8 +301,11 @@ class FilteredSeedDecorator(ResetterDecorator):
         print("seed:\t{}".format(seed))
         print("token:\t{}".format(token))
         print()
+
+        # delegate to resetter
         self._resetter._seed = seed
         self._resetter.reset()
+
         return { 'seed': seed, 'token': token, 'filter': self._filter }
 
 def main():
@@ -314,6 +331,7 @@ def main():
     args = parser.parse_args()
     minecraft_path = args.config_path
     print("neoreset {}".format(version.strip()))
+    print()
 
     Neoreset(root_path, minecraft_path).start()
 

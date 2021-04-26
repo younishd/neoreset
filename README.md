@@ -20,6 +20,7 @@ Run the executable (e.g. from a terminal) and press…
 ## Features
 
 - **RSG/SSG/FSG**
+- **1.16** and **1.14**
 - Global and per session counter in world name
 - Included filters
     - filteredseed
@@ -56,6 +57,8 @@ Check out the file called `neoreset.json` in your `.minecraft` folder.
 
 - `hotkey` - reset hotkey
 - `hotkey2` - switch category hotkey
+- `version` - minecraft version: `"1.16"` or `"1.14"`
+- `category` - default category: `"rsg"`, `"ssg"`, `"fsg"`
 - `delay` - delay in seconds between simulated keyboard inputs
 - `session_thresh` - threshold when to wrap a session (in seconds)
 - `sound` - voice on/off
@@ -64,18 +67,18 @@ Check out the file called `neoreset.json` in your `.minecraft` folder.
     - `{v}` - version
     - `{s}` - per session counter
     - `{g}` - global counter
-- `ssg.seed` - seed to be used for SSG category
-- `fsg.filter` - filter to be used for FSG category
-    - `filteredseed`
-    - `filteredvillage`
-    - `filteredshipwreck`
-    - `ruined-portal-loot`
-    - `fsg-power-village-looting-sword`
+- `ssg.seed` - seed to be used for SSG category (1.14 or 1.16)
+- `fsg.filter` - filter to be used for FSG category (1.16 only)
+    - `"filteredseed"`
+    - `"filteredvillage"`
+    - `"filteredshipwreck"`
+    - `"ruined-portal-loot"`
+    - `"fsg-power-village-looting-sword"`
 
 ## Work in progress
 
 - [x] 1.16
-- [ ] 1.14
+- [x] 1.14
 - [x] RSG
 - [x] SSG
 - [x] FSG
