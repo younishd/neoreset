@@ -1,2 +1,1 @@
-- implement 1.14
 - port to Windows/macOS
