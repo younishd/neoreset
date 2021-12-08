@@ -18,63 +18,98 @@ from shutil import copyfile
 from pynput.keyboard import Key, Controller, Listener
 from boombox import BoomBox
 
+
 class Neoreset:
     class Voice:
-        GREETINGS = [ 'hello', 'hi', 'pog', 'lfg', 'wb' ]
-        RESETS = [ 'reset', 'again', 'donged', 'godspeed', 'block' ]
+        GREETINGS = ["hello", "hi", "pog", "lfg", "wb"]
+        RESETS = [
+            "reset",
+            "again",
+            "donged",
+            "godspeed",
+            "block",
+            "anlacki",
+            "blind",
+            "blindcoords",
+            "brah",
+            "breakup",
+            "bridge",
+            "bucket",
+            "calculators",
+            "day",
+            "dream",
+            "f",
+            "f2",
+            "f3",
+            "fastion",
+            "horse",
+            "illumina",
+            "linux",
+            "meta",
+            "nether",
+            "optifine",
+            "pause",
+            "players",
+            "proof",
+            "terrain",
+            "treasure",
+            "wr",
+        ]
 
         def __init__(self, path):
             self._path = path
             self._last_reset = random.choice(self.RESETS)
 
         def _play(self, line):
-            BoomBox(os.path.join(self._path, line + '.ogg')).play()
+            BoomBox(os.path.join(self._path, line + ".ogg")).play()
 
         def play_random_greeting(self):
             self._play(random.choice(self.GREETINGS))
 
         def play_random_reset(self):
-            self._last_reset = random.choice([ x for x in self.RESETS if x != self._last_reset ])
+            self._last_reset = random.choice([x for x in self.RESETS if x != self._last_reset])
             self._play(self._last_reset)
 
         def play_rsg(self):
-            self._play('rsg')
+            self._play("rsg")
 
         def play_ssg(self):
-            self._play('ssg')
+            self._play("ssg")
 
         def play_fsg(self):
-            self._play('fsg')
+            self._play("fsg")
 
     def __init__(self, root_path, minecraft_path):
         if not (os.path.exists(minecraft_path) and os.path.isdir(minecraft_path)):
             raise ValueError("Invalid config path! ({})".format(minecraft_path))
-        file = os.path.join(minecraft_path, 'neoreset.json')
+        file = os.path.join(minecraft_path, "neoreset.json")
         if not (os.path.exists(file) and os.path.isfile(file)) or os.stat(file).st_size == 0:
-            template = os.path.join(root_path, 'neoreset.json')
+            template = os.path.join(root_path, "neoreset.json")
             copyfile(template, file)
         with open(file) as f:
             self._config = json.load(f)
         self._file = file
         self._root_path = root_path
 
-        self._voice = self._voice = self.Voice(os.path.join(root_path, 'assets')) if self._config['static']['sound'] else None
+        self._voice = self._voice = (
+            self.Voice(os.path.join(root_path, "assets")) if self._config["static"]["sound"] else None
+        )
 
-        self._hotkey = getattr(Key, self._config['static']['hotkey'])
-        self._hotkey2 = getattr(Key, self._config['static']['hotkey2'])
-        self._version = self._config['static']['version']
-        self._category = self._config['static']['category']
-        if self._category == 'fsg' and self._version == '1.14':
+        self._hotkey = getattr(Key, self._config["static"]["hotkey"])
+        self._hotkey2 = getattr(Key, self._config["static"]["hotkey2"])
+        self._version = self._config["static"]["version"]
+        self._category = self._config["static"]["category"]
+        if self._category == "fsg" and self._version == "1.14":
             raise NotImplementedError("FSG for 1.14 has not been implemented yet.")
 
-        self._delay = self._config['static']['delay']
-        self._session_thresh = self._config['static']['session_thresh']
-        self._world_name = self._config['static']['world_name']
-        self._ssg_seed = self._config['static'][self._version]['ssg']['seed']
-        self._fsg_filter = self._config['static']['1.16']['fsg']['filter']
-        self._global_count = self._config['volatile'][self._version][self._category]['counter']['global']
-        self._session_count = self._config['volatile'][self._version][self._category]['counter']['session']
-        self._last_timestamp = self._config['volatile'][self._version][self._category]['last_run']['timestamp']
+        self._delay = self._config["static"]["delay"]
+        self._session_thresh = self._config["static"]["session_thresh"]
+        self._world_name = self._config["static"]["world_name"]
+        self._ssg_seed = self._config["static"][self._version]["ssg"]["seed"]
+        self._fsg_filter = self._config["static"]["1.16"]["fsg"]["filter"]
+        self._global_count = self._config["volatile"][self._version][self._category]["counter"]["global"]
+        self._session_count = self._config["volatile"][self._version][self._category]["counter"]["session"]
+        self._last_timestamp = self._config["volatile"][self._version][self._category]["last_run"]["timestamp"]
 
     def start(self):
         def on_press(key):
@@ -91,9 +126,7 @@ class Neoreset:
         if self._voice:
             self._voice.play_random_greeting()
 
-        with Listener(
-                on_press=on_press,
-                on_release=on_release) as listener:
+        with Listener(on_press=on_press, on_release=on_release) as listener:
             listener.join()
 
     def _print_hotkeys(self):
@@ -111,31 +144,22 @@ class Neoreset:
         self._last_timestamp = current_timestamp
 
         world_name = self._world_name.format(
-                c=self._category,
-                v=self._version,
-                s=self._session_count,
-                g=self._global_count)
+            c=self._category, v=self._version, s=self._session_count, g=self._global_count
+        )
 
         print(world_name)
 
         if self._version == "1.14":
-            resetter = FourteenResetter(
-                    delay=self._delay,
-                    world_name=world_name)
+            resetter = FourteenResetter(delay=self._delay, world_name=world_name)
         elif self._version == "1.16":
-            resetter = SixteenResetter(
-                    delay=self._delay,
-                    world_name=world_name)
+            resetter = SixteenResetter(delay=self._delay, world_name=world_name)
         else:
             raise ValueError("Unknown version!")
 
         if self._category == "ssg":
             resetter.set_seed(self._ssg_seed)
         elif self._category == "fsg":
-            resetter = FilteredSeedDecorator(
-                    resetter,
-                    filter=self._fsg_filter,
-                    path=self._root_path)
+            resetter = FilteredSeedDecorator(resetter, filter=self._fsg_filter, path=self._root_path)
         elif self._category == "rsg":
             pass
         else:
@@ -147,28 +171,28 @@ class Neoreset:
         data = resetter.reset()
 
         # write back volatile meta data
-        self._config['volatile'][self._version][self._category]['counter']['global'] = self._global_count
-        self._config['volatile'][self._version][self._category]['counter']['session'] = self._session_count
-        self._config['volatile'][self._version][self._category]['last_run']['timestamp'] = self._last_timestamp
+        self._config["volatile"][self._version][self._category]["counter"]["global"] = self._global_count
+        self._config["volatile"][self._version][self._category]["counter"]["session"] = self._session_count
+        self._config["volatile"][self._version][self._category]["last_run"]["timestamp"] = self._last_timestamp
 
         # write back seed (ssg + fsg)
-        if self._category in ['ssg', 'fsg']:
-            self._config['volatile'][self._version][self._category]['last_run']['seed'] = data['seed']
+        if self._category in ["ssg", "fsg"]:
+            self._config["volatile"][self._version][self._category]["last_run"]["seed"] = data["seed"]
 
         # write back token (fsg)
-        if self._category == 'fsg':
-            self._config['volatile'][self._version][self._category]['last_run']['token'] = data['token']
+        if self._category == "fsg":
+            self._config["volatile"][self._version][self._category]["last_run"]["token"] = data["token"]
 
-        with open(self._file, 'w') as f:
+        with open(self._file, "w") as f:
             json.dump(self._config, f, indent=4)
 
     def _on_cycle(self):
         if self._category == "rsg":
             self._category = "ssg"
         elif self._category == "ssg":
-            if self._version == '1.16':
+            if self._version == "1.16":
                 self._category = "fsg"
-            elif self._version == '1.14':
+            elif self._version == "1.14":
                 self._category = "rsg"
             else:
                 raise ValueError("Unknown version!")
@@ -177,12 +201,13 @@ class Neoreset:
         else:
             raise ValueError("Unknown category!")
 
-        self._global_count = self._config['volatile'][self._version][self._category]['counter']['global']
-        self._session_count = self._config['volatile'][self._version][self._category]['counter']['session']
-        self._last_timestamp = self._config['volatile'][self._version][self._category]['last_run']['timestamp']
+        self._global_count = self._config["volatile"][self._version][self._category]["counter"]["global"]
+        self._session_count = self._config["volatile"][self._version][self._category]["counter"]["session"]
+        self._last_timestamp = self._config["volatile"][self._version][self._category]["last_run"]["timestamp"]
 
         if self._voice:
-            getattr(self._voice, 'play_' + self._category)()
+            getattr(self._voice, "play_" + self._category)()
+
 
 class Resetter:
     def __init__(self, delay=0.07, world_name=None, seed=None):
@@ -206,31 +231,33 @@ class Resetter:
             self._keyboard.tap(key)
             sleep(self._delay)
 
+
 class SixteenResetter(Resetter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._version = "1.16"
 
     def reset(self):
-        self._tap([ Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.enter ])
+        self._tap([Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.enter])
         self._keyboard.press(Key.ctrl_l)
         sleep(self._delay)
-        self._tap([ Key.backspace, Key.backspace ])
+        self._tap([Key.backspace, Key.backspace])
         self._keyboard.release(Key.ctrl_l)
         sleep(self._delay)
         self._keyboard.type(self._world_name)
         sleep(self._delay)
-        self._tap([ Key.tab, Key.tab, Key.enter, Key.enter, Key.enter ])
+        self._tap([Key.tab, Key.tab, Key.enter, Key.enter, Key.enter])
 
         # set seed
         if self._seed is not None:
-            self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
+            self._tap([Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab])
             self._keyboard.type(self._seed)
-            self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
-            return { 'seed': self._seed }
+            self._tap([Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter])
+            return {"seed": self._seed}
 
-        self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
+        self._tap([Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter])
         return None
+
 
 class FourteenResetter(Resetter):
     def __init__(self, *args, **kwargs):
@@ -238,10 +265,10 @@ class FourteenResetter(Resetter):
         self._version = "1.14"
 
     def reset(self):
-        self._tap([ Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab ])
+        self._tap([Key.tab, Key.enter, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter, Key.tab])
         self._keyboard.press(Key.ctrl_l)
         sleep(self._delay)
-        self._tap([ Key.backspace, Key.backspace ])
+        self._tap([Key.backspace, Key.backspace])
         self._keyboard.release(Key.ctrl_l)
         sleep(self._delay)
         self._keyboard.type(self._world_name)
@@ -249,13 +276,14 @@ class FourteenResetter(Resetter):
 
         # set seed
         if self._seed is not None:
-            self._tap([ Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab ])
+            self._tap([Key.tab, Key.tab, Key.enter, Key.tab, Key.tab, Key.tab])
             self._keyboard.type(self._seed)
-            self._tap([ Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter ])
-            return { 'seed': self._seed }
+            self._tap([Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.tab, Key.enter])
+            return {"seed": self._seed}
 
-        self._tap([ Key.tab, Key.tab, Key.tab, Key.enter ])
+        self._tap([Key.tab, Key.tab, Key.tab, Key.enter])
         return None
+
 
 class ResetterDecorator(Resetter):
     def __init__(self, resetter: Resetter):
@@ -264,13 +292,14 @@ class ResetterDecorator(Resetter):
     def reset(self):
         return self._resetter.reset()
 
+
 class FilteredSeedDecorator(ResetterDecorator):
     class Filter:
-        SEED        = 'filteredseed'
-        VILLAGE     = 'filteredvillage'
-        SHIPWRECK   = 'filteredshipwreck'
-        LOOTING     = 'fsg-power-village-looting-sword'
-        PORTAL      = 'ruined-portal-loot'
+        SEED = "filteredseed"
+        VILLAGE = "filteredvillage"
+        SHIPWRECK = "filteredshipwreck"
+        LOOTING = "fsg-power-village-looting-sword"
+        PORTAL = "ruined-portal-loot"
 
     def __init__(self, resetter: Resetter, filter=Filter.SEED, path=""):
         super().__init__(resetter)
@@ -279,7 +308,8 @@ class FilteredSeedDecorator(ResetterDecorator):
             self.Filter.VILLAGE,
             self.Filter.SHIPWRECK,
             self.Filter.LOOTING,
-            self.Filter.PORTAL ]
+            self.Filter.PORTAL,
+        ]
         self._filter = filter
         self._path = path
         self._resetter._category = "fsg"
@@ -287,14 +317,14 @@ class FilteredSeedDecorator(ResetterDecorator):
     def reset(self):
         # execute fsg binary
         env = os.environ.copy()
-        env["LD_LIBRARY_PATH"] = os.path.join(self._path, 'lib')
-        cmd = os.path.join(self._path, 'bin', self._filter)
-        result = subprocess.run([ cmd ], env=env, stdout=subprocess.PIPE).stdout.decode('utf-8')
-        seed = re.findall(r'Seed: (.+)', result)
-        token = re.findall(r'Verification Token:\n(.+)', result)
-        if (len(seed) == 0):
+        env["LD_LIBRARY_PATH"] = os.path.join(self._path, "lib")
+        cmd = os.path.join(self._path, "bin", self._filter)
+        result = subprocess.run([cmd], env=env, stdout=subprocess.PIPE).stdout.decode("utf-8")
+        seed = re.findall(r"Seed: (.+)", result)
+        token = re.findall(r"Verification Token:\n(.+)", result)
+        if len(seed) == 0:
             raise RuntimeError("No seed found in command output!")
-        if (len(token) == 0):
+        if len(token) == 0:
             raise RuntimeError("No token found in command output!")
         seed = seed[0]
         token = token[0]
@@ -306,28 +336,33 @@ class FilteredSeedDecorator(ResetterDecorator):
         self._resetter._seed = seed
         self._resetter.reset()
 
-        return { 'seed': seed, 'token': token, 'filter': self._filter }
+        return {"seed": seed, "token": token, "filter": self._filter}
+
 
 def main():
     def sigint_handler(sig, frame):
-        print('Bye!')
+        print("Bye!")
         sys.exit(0)
+
     signal.signal(signal.SIGINT, sigint_handler)
 
     root_path = os.path.dirname(os.path.abspath(__file__))
-    minecraft_path = os.path.join(os.path.expanduser('~'), '.minecraft')
-    version_file = os.path.join(root_path, 'VERSION')
+    minecraft_path = os.path.join(os.path.expanduser("~"), ".minecraft")
+    version_file = os.path.join(root_path, "VERSION")
     with open(version_file) as f:
         version = f.read()
     parser = argparse.ArgumentParser(
-            description="Neo's auto resetter for Minecraft speedrunning on Linux.",
-            prog="neoreset")
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {}'.format(version.strip()))
-    parser.add_argument('-c', '--config',
-            dest='config_path',
-            action='store',
-            default=minecraft_path,
-            help='custom path to neoreset.json config file')
+        description="Neo's auto resetter for Minecraft speedrunning on Linux.", prog="neoreset"
+    )
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s {}".format(version.strip()))
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="config_path",
+        action="store",
+        default=minecraft_path,
+        help="custom path to neoreset.json config file",
+    )
     args = parser.parse_args()
     minecraft_path = args.config_path
     print("neoreset {}".format(version.strip()))
@@ -335,5 +370,6 @@ def main():
 
     Neoreset(root_path, minecraft_path).start()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
