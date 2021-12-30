@@ -21,40 +21,8 @@ from boombox import BoomBox
 
 class Neoreset:
     class Voice:
-        GREETINGS = ["hello", "hi", "pog", "lfg", "wb"]
-        RESETS = [
-            "reset",
-            "again",
-            "donged",
-            "godspeed",
-            "block",
-            "anlacki",
-            "blind",
-            "blindcoords",
-            "brah",
-            "breakup",
-            "bridge",
-            "bucket",
-            "calculators",
-            "day",
-            "dream",
-            "f",
-            "f2",
-            "f3",
-            "fastion",
-            "horse",
-            "illumina",
-            "linux",
-            "meta",
-            "nether",
-            "optifine",
-            "pause",
-            "players",
-            "proof",
-            "terrain",
-            "treasure",
-            "wr",
-        ]
+        GREETINGS = ["hello", "hi", "lfg", "wb"]
+        RESETS = ["reset", "again"]
 
         def __init__(self, path):
             self._path = path
